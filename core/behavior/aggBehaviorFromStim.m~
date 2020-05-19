@@ -149,7 +149,7 @@ combo.ppk = ppk;
 combo.ppk_rc = ppk_rc;
 
 tmp = corrcoef(combo.ppk.w_norm, combo.ppk_rc.w_norm);
-combo.ppk_rval = tmp(1,2);
+combo.ppk_rval = 
 
 %% slopes & 95%ci
 % early: -0.10865  +/- 0.0275
