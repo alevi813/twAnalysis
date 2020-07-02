@@ -11,7 +11,7 @@ nFilesNames = arrayfun(@(x) x.name(1:9) , nFiles, 'UniformOutput', false);
 
 %%
 % WHICH EXPERIMENT WOULD YOU LIKE TO LOAD?
-exname = 'n20160802';
+exname = 'n20161013';
 
 nNeurons = sum(strcmp(nFilesNames, exname));
 
@@ -25,16 +25,14 @@ end
 
 % load stim file
 stim    = getStim(exname, dataPath);
-% S = behavior.sessionBehaviorSummary(stim);
-% 
-% froCoh = S.Xc(S.froIx,:);
-% allFroCoh(kEx, :) = froCoh(1,:);
 
 % stimulus timing variables, bin size, windows
 motionOnset = [stim.timing(:).motionon] + [stim.timing(:).plxstart];
-goTime      = [stim.timing(:).fpoff] + [stim.timing(:).plxstart];
+%goTime      = [stim.timing(:).fpoff] + [stim.timing(:).plxstart];
+goTime      = [stim.timing(:).fpoff] + [stim.timing(:).plxstart]+ stim.sacTime';
+
 binSize = 0.01; % 10ms (in seconds)
-window  = [-.5 2]; % 500 ms before motion onset to ~1s after (in seconds)
+window  = [-.5 3]; % 500 ms before motion onset to ~1s after (in seconds)
 %window  = [-2.5 0]; % backwards windown when aligned to 'go'
 
 nBins = diff(window)/binSize;
@@ -62,11 +60,15 @@ for kNeuron = 1:nNeurons
     %motionOn.sprate = motionOn.sprate(goodTrials, :);
     
     goodTrials  = stim.goodtrial & ~any(isnan(motionOn.spcnt), 2);
+    froIx       = stim.trialId==stim.frozenTrialIds;
+    froIx = froIx(goodTrials);
     
     motionOn.sprate = motionOn.sprate(goodTrials, :);
-    
+    %motionOn.sprate = motionOn.sprate(froIx, :);
+
     Cho = sign(stim.targchosen - 1.5);
     Cho = Cho(goodTrials);
+    %Cho = Cho(froIx);
 
     %plot
     odds = 1:nNeurons*2; odds = odds(rem(odds, 2)==1);
@@ -74,7 +76,7 @@ for kNeuron = 1:nNeurons
     subplot(2, nNeurons, kNeuron)
     plot(motionOn.bins, nanmean(motionOn.sprate(Cho==1, :) )); hold on
     plot(motionOn.bins, nanmean(motionOn.sprate(Cho==-1, :) ));
-    xlim([-.5 1.6])
+    %xlim([-.5 1.6])
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%% get spikes aligned to GO SIGNAL
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
